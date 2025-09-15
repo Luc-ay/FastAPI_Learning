@@ -40,7 +40,6 @@ class order(Base):
     quantity = Column(Integer, nullable=False)
     order_status = Column(ChoiceType(choices = ORDER_STATUS), default = 'PENDING')
     pizza_size = Column(ChoiceType(choices = PIZZA_SIZES), default = 'MEDIUM')
-    flavour = Column()
     user = relationship("User", back_populates="orders")
 
     def __repr__(self):
