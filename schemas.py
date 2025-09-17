@@ -54,6 +54,6 @@ class LoginModel(BaseModel):
 
 
 class Settings(BaseModel):
-   authjwt_secret_key: str = '5bb7593cf255881150715912038cec856e248159c3934f460cf5eb5288348582'
+   authjwt_secret_key: str = "5bb7593cf255881150715912038cec856e248159c3934f460cf5eb5288348582"
 
 

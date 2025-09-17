@@ -6,6 +6,8 @@ from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from fastapi.exceptions import HTTPException 
 from typing import List
+from fastapi_jwt_auth import AuthJWT
+from fastapi.encoders import jsonable_encoder
 
 
 auth_router = APIRouter(
@@ -50,7 +52,7 @@ async def signup(user: SignUpModel, db: Session = Depends(get_db)):
 
 
 @auth_router.post("/login", status_code=status.HTTP_202_ACCEPTED)
-async def login(user: LoginModel, db: Session = Depends(get_db)):
+async def login(user: LoginModel, Authorize: AuthJWT = Depends(),db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user:
         raise HTTPException(
@@ -63,9 +65,16 @@ async def login(user: LoginModel, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid email or password"
         )
+    
+    access_token = Authorize.create_access_token(subject=str(db_user.email))
+    refresh_token = Authorize.create_refresh_token(subject=str(db_user.email))
+
+    response = {
+         "access_token": access_token,
+         "refresh_token": refresh_token
+    }
 
     return {
-        "email": db_user.email,
-        "username": db_user.username,
+        "response": jsonable_encoder(response),
         "message": "User logged in successfully"
     }
