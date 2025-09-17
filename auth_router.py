@@ -15,10 +15,15 @@ auth_router = APIRouter(
    tags=["auth"]
 )
 
-@auth_router.get("/", response_model=List[UserResponseModel], status_code=status.HTTP_200_OK)
-async def get_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return users
+@auth_router.get("/", status_code=status.HTTP_200_OK)
+async def get_users(Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_required()
+
+    except Exception as e:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token")
+    
+    return "user Authorized"
 
 
 @auth_router.post("/signup", response_model=ResponseModel, status_code=status.HTTP_201_CREATED)
