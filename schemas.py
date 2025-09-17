@@ -1,46 +1,59 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, ForeignKey
-from sqlalchemy_utils import ChoiceType
-from sqlalchemy.orm import relationship
-from database import Base
+from pydantic import BaseModel
+from typing import Optional
 
 
+class SignUpModel(BaseModel):
+   # id: Optional[int]
+   email: str
+   username: str
+   password: str
+   is_active: Optional[bool] = True
+   is_staff: Optional[bool] = False
 
-class User(Base):
-    __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(25), unique=True)
-    email = Column(String(80), unique=True)
-    password = Column(Text, nullable=True)
-    is_active = Column(Boolean, default=False)
-    is_staff = Column(Boolean, default=False)
-    orders = relationship('Order', back_populates='user')
+   class Config:
+      orm_mode = True
+      schema_extra = {
+         "example": {
+            "username": "john_doe",
+            "email": "johndoe@gmail.com",
+            "password": "strongpassword123",
+            "is_active": True,
+            "is_staff": False
+         }
+      }
 
-    def __repr__(self):
-        return f'<User {self.username}>'
-    
 
-class order(Base):
+class ResponseModel(BaseModel):
+   email: str
+   username: str
+   is_active: Optional[bool] = True
+   is_staff: Optional[bool] = False
 
-    ORDER_STATUS = (
-        ('PENDING', 'Pending'),
-        ('IN-TRANSIT', 'in-ransit'),
-        ('DELIVERED', 'delivered'),    
-    )
+   class Config:
+      from_attributes = True
 
-    PIZZA_SIZES = (
-        ('SMALL', 'Small'),
-        ('MEDIUM', 'Medium'),
-        ('LARGE', 'Large'),
-        ('ETXRRA-LARGE', 'Extra-Large'),
-    )
 
-    __tablename__ = 'orders'
-    id = Column(Integer, primary_key=True, index=True)
-    quantity = Column(Integer, nullable=False)
-    order_status = Column(ChoiceType(choices = ORDER_STATUS), default = 'PENDING')
-    pizza_size = Column(ChoiceType(choices = PIZZA_SIZES), default = 'MEDIUM')
-    user = relationship("User", back_populates="orders")
+class UserResponseModel(BaseModel):
+   id: Optional[int]
+   email: str
+   username: str
+   is_active: Optional[bool] = True
+   is_staff: Optional[bool] = False
 
-    def __repr__(self):
-        return f'<Order {self.id} - {self.pizza_size} - {self.quantity}>'
+   class Config:
+      orm_mode = True
+
+
+class LoginModel(BaseModel):
+   email: str
+   password: str
+
+   class Config:
+      from_attributes = True
+
+
+class Settings(BaseModel):
+   authjwt_secret_key: str = '5bb7593cf255881150715912038cec856e248159c3934f460cf5eb5288348582'
+
+
